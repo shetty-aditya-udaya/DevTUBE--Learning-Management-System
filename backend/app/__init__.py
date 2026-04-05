@@ -7,6 +7,7 @@ from app.extensions import db, jwt, ma
 def create_app(config_class=Config):
     flask_app = Flask(__name__)
     flask_app.config.from_object(config_class)
+    flask_app.url_map.strict_slashes = False
     # DB URI is now read from config.py → .env (DATABASE_URL)
 
     # Initialize extensions
