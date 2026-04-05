@@ -1,11 +1,11 @@
 import axios from 'axios'
 
-// In production on Vercel, this points to your Render backend URL.
-// Locally it defaults to '/api' which Vite proxies to localhost:5000.
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+// Ensure we don't accidentally duplicate /api if the user sets it
+const rawEnvUrl = import.meta.env.VITE_API_URL || ''
+const BASE_URL = rawEnvUrl.endsWith('/api') ? rawEnvUrl.slice(0, -4) : rawEnvUrl
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: `${BASE_URL}/api`,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -41,7 +41,7 @@ api.interceptors.response.use(
       
       if (refreshToken) {
         try {
-          const res = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {
+          const res = await axios.post(`${BASE_URL}/api/auth/refresh`, {}, {
             headers: { Authorization: `Bearer ${refreshToken}` },
           })
           const newToken = res.data.data.access_token

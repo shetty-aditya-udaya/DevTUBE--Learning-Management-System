@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 
 /* ─── Constants ─────────────────────────────────────────────────────────── */
-const API_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/ai/query` 
-  : '/api/ai/query'
+/* ─── Constants ─────────────────────────────────────────────────────────── */
+const rawEnvUrl = import.meta.env.VITE_API_URL || ''
+const BASE_URL = rawEnvUrl.endsWith('/api') ? rawEnvUrl.slice(0, -4) : rawEnvUrl
+const API_URL = `${BASE_URL}/api/ai/query`
 
 const WELCOME_MSG = {
   id: 'welcome',
