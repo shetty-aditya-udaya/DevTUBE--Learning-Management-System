@@ -16,8 +16,14 @@ if _jwt_key in _WEAK_KEYS or len(_jwt_key) < 24:
 
 # ── Aiven MySQL SSL ──────────────────────────────────────────────────────────
 _db_url = os.getenv("DATABASE_URL", "")
+
+# 1. Force PyMySQL driver
 if _db_url.startswith("mysql://"):
     _db_url = _db_url.replace("mysql://", "mysql+pymysql://", 1)
+
+# 2. Strip unsupported ssl-mode URL parameter
+_db_url = _db_url.replace("?ssl-mode=REQUIRED", "")
+_db_url = _db_url.replace("?ssl_mode=REQUIRED", "")
 
 _is_aiven = "aivencloud.com" in _db_url
 _engine_options = {
@@ -28,9 +34,10 @@ _engine_options = {
     "pool_timeout":   30,            # Wait max 30s for a connection
 }
 if _is_aiven:
-    # Aiven requires SSL — enable it without a local CA cert bundle
+    # Aiven requires SSL — for PyMySQL simply passing an empty ssl dict forces SSL tunneling 
+    # without looking for strict C-header ssl_mode validation
     _engine_options["connect_args"] = {
-        "ssl": {"ssl_mode": "REQUIRED"}
+        "ssl": {}
     }
 
 
