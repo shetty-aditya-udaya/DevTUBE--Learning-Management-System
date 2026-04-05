@@ -1,0 +1,77 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# ── Environment & Secrets ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Virtual Environments ──────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+
+# ── Databases (local) ─────────────────────────────────────────────────────────
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+backend/instance/
+backend/test.db
+
+# ── SSL / Certificates ────────────────────────────────────────────────────────
+*.pem
+*.key
+*.crt
+*.p12
+
+# ── Logs & Diagnostics ────────────────────────────────────────────────────────
+*.log
+*.txt
+backend_logs.txt
+frontend_logs.txt
+push_error.txt
+tracked_files_audit.txt
+
+# ── Debug / Audit / Scratch Scripts ──────────────────────────────────────────
+backend/audit_*.py
+backend/auth_audit*.py
+backend/auth_audit*.txt
+backend/check_*.py
+backend/test_*.py
+backend/diagnose_*.py
+backend/dump_*.py
+backend/dump_*.txt
+backend/fix_*.py
+backend/live_api_audit.py
+backend/migrate_progress*.py
+backend/seed_*.py
+backend/seed_*.txt
+backend/setup_community.py
+backend/superior_seed.py
+backend/expanded_seed.py
+backend/master_seed.py
+backend/verify_auth_debug.py
+backend/run_seed*.py
+
+# ── Node ──────────────────────────────────────────────────────────────────────
+node_modules/
+.cache/
+frontend/dist/
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.code-workspace
+
+# ── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
