@@ -24,6 +24,8 @@ if _db_url.startswith("mysql://"):
 # 2. Strip unsupported ssl-mode URL parameter
 _db_url = _db_url.replace("?ssl-mode=REQUIRED", "")
 _db_url = _db_url.replace("?ssl_mode=REQUIRED", "")
+_db_url = _db_url.replace("&ssl-mode=REQUIRED", "")
+_db_url = _db_url.replace("&ssl_mode=REQUIRED", "")
 
 _is_aiven = "aivencloud.com" in _db_url
 _engine_options = {
@@ -34,10 +36,9 @@ _engine_options = {
     "pool_timeout":   30,            # Wait max 30s for a connection
 }
 if _is_aiven:
-    # Aiven requires SSL — for PyMySQL simply passing an empty ssl dict forces SSL tunneling 
-    # without looking for strict C-header ssl_mode validation
+    # PyMySQL requires SSL connect_args structured differently than MySQLdb
     _engine_options["connect_args"] = {
-        "ssl": {}
+        "ssl": {"ssl": True}
     }
 
 
