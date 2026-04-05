@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 
 /* ─── Constants ─────────────────────────────────────────────────────────── */
-const API_URL = 'http://localhost:5000/api/ai/query'
+const API_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/ai/query` 
+  : '/api/ai/query'
 
 const WELCOME_MSG = {
   id: 'welcome',
