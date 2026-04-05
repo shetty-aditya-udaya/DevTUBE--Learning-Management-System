@@ -12,10 +12,14 @@ Pipeline:
 
 import os
 import logging
+import threading
 import numpy as np
 from typing import Optional
+from flask import current_app
 
 logger = logging.getLogger(__name__)
+
+_init_lock = threading.Lock()
 
 # ── Lazy-loaded globals (initialised once) ────────────────────────────────────
 _embedder        = None   # SentenceTransformer model
@@ -179,29 +183,43 @@ def _build_index(docs: list[dict]):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 3. INITIALISE (called once from Flask app factory)
+# 3. LAZY INITIALISATION (called on first use inside a request handler)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def initialize(app):
-    """Build the document store and FAISS index inside the Flask app context."""
+def _ensure_initialized():
+    """Build the document store and FAISS index inside the active Flask app context."""
     global _faiss_index, _doc_store, _gemini_model
 
-    # Documents
-    _doc_store   = _build_documents(app)
-    _faiss_index = _build_index(_doc_store)
+    # Fast path
+    if _faiss_index is not None and _doc_store:
+        return
 
-    # Gemini client
-    api_key = os.getenv("GEMINI_API_KEY", "")
-    if api_key and api_key != "your_gemini_api_key_here":
+    with _init_lock:
+        if _faiss_index is not None and _doc_store:
+            return
+            
+        logger.info("[AI] Lazy loading AI models and FAISS index on first request...")
+        
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            _gemini_model = genai.GenerativeModel("models/gemini-2.0-flash")
-            logger.info("[AI] Gemini client ready (models/gemini-2.0-flash) ✓")
+            # We are inside a request, current_app proxy resolves to real app
+            app = current_app._get_current_object()
+            
+            # Documents
+            _doc_store   = _build_documents(app)
+            _faiss_index = _build_index(_doc_store)
+
+            # Gemini client
+            api_key = os.getenv("GEMINI_API_KEY", "")
+            if api_key and api_key != "your_gemini_api_key_here":
+                import google.generativeai as genai
+                genai.configure(api_key=api_key)
+                _gemini_model = genai.GenerativeModel("models/gemini-2.0-flash")
+                logger.info("[AI] Gemini client ready (models/gemini-2.0-flash) ✓")
+            else:
+                logger.warning("[AI] GEMINI_API_KEY not set — AI will run in retrieval-only mode.")
+                
         except Exception as e:
-            logger.warning(f"[AI] Gemini init failed: {e}. AI will use retrieval-only mode.")
-    else:
-        logger.warning("[AI] GEMINI_API_KEY not set — AI will run in retrieval-only mode.")
+            logger.error(f"[AI] Failed lazy initialization: {e}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -315,9 +333,12 @@ def query(user_query: str) -> dict:
     Main RAG pipeline. Returns:
       { "answer": str, "sources": [{ "title": str, "type": str }] }
     """
+    # Lazy initialisation of heavy AI models and data stores
+    _ensure_initialized()
+
     if not _faiss_index or not _doc_store:
         return {
-            "answer": "The AI assistant is still warming up. Please try again in a moment! ⚡",
+            "answer": "The AI assistant is temporarily unavailable (memory constrained). Please try again in a moment! ⚡",
             "sources": [],
         }
 

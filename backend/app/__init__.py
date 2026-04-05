@@ -53,6 +53,11 @@ def create_app(config_class=Config):
     def internal_error(e):
         return error_response("Internal server error", 500)
 
+    # Health Check route
+    @flask_app.route("/")
+    def health_check():
+        return {"status": "healthy", "service": "DevTUBE AI RAG API"}, 200
+
     # Diagnostic route
     @flask_app.route("/api/test-db")
     def test_db():
@@ -68,20 +73,8 @@ def create_app(config_class=Config):
         import app.models  # noqa: F401 – ensure models are loaded
         db.create_all()
 
-        # ── AI Assistant: Build RAG index from live DB ──────────────────────
-        import threading
-        from app.services import ai_service
-
-        def _warm_up_ai():
-            """Run FAISS index build in background thread so server starts instantly."""
-            try:
-                ai_service.initialize(flask_app)
-            except Exception as exc:
-                import logging
-                logging.getLogger("ai_service").error(f"[AI] Warm-up failed: {exc}")
-
-        t = threading.Thread(target=_warm_up_ai, daemon=True, name="ai-warmup")
-        t.start()
+        # AI Assistant is lazily loaded on first query in production to prevent Memory OOM 
+        # and worker timeouts during initial Gunicorn bind.
 
         # Log registered routes
         from flask import url_for
