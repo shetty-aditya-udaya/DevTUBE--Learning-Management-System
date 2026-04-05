@@ -16,6 +16,9 @@ if _jwt_key in _WEAK_KEYS or len(_jwt_key) < 24:
 
 # ── Aiven MySQL SSL ──────────────────────────────────────────────────────────
 _db_url = os.getenv("DATABASE_URL", "")
+if _db_url.startswith("mysql://"):
+    _db_url = _db_url.replace("mysql://", "mysql+pymysql://", 1)
+
 _is_aiven = "aivencloud.com" in _db_url
 _engine_options = {
     "pool_pre_ping":  True,          # Drop stale connections before use

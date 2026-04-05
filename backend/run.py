@@ -1,6 +1,10 @@
 import os
 import sys
 from app import create_app
+import pymysql
+
+# Patch to force SQLAlchemy to use PyMySQL under the hood, solving missing MySQLdb headers on Render
+pymysql.install_as_MySQLdb()
 
 # Ensure current directory is in path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
