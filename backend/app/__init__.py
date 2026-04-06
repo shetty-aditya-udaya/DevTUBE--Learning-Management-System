@@ -18,7 +18,11 @@ def create_app(config_class=Config):
     bcrypt.init_app(flask_app)
     from app.extensions import migrate
     migrate.init_app(flask_app, db)
-    CORS(flask_app)
+    CORS(
+        flask_app,
+        resources={r"/api/*": {"origins": "*"}},
+        supports_credentials=True
+    )
 
     # Register blueprints
     from app.routes.auth import auth_bp

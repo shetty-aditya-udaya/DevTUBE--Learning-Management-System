@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { Key } from 'lucide-react'
+import logo from '../assets/logo.png'
 
 const GoogleIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -91,7 +92,7 @@ export default function AuthPage() {
         {/* Brand Logo */}
         <div className="absolute top-8 left-6 md:left-12 flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
            <img 
-             src="/logo.png" 
+             src={logo} 
              alt="DevTUBE Logo" 
              className="w-9 h-9 object-contain rounded-lg shadow-2xl shadow-brand-500/20 group-hover:scale-105 transition-all duration-300"
            />

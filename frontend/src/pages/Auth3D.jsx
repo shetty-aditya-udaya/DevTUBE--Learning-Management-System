@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { Mail, Lock, User, GraduationCap, ChevronRight, ArrowLeft } from 'lucide-react'
+import logo from '../assets/logo.png'
 
 // ─── Social Icons ─────────────────────────────────────────────────────────────
 
@@ -198,7 +199,7 @@ export default function Auth3D() {
       <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-10 py-5">
         <button onClick={() => navigate('/')} className="flex items-center gap-3 group">
           <img
-            src="/logo.png"
+            src={logo}
             alt="DevTUBE"
             className="w-9 h-9 object-contain rounded-lg shadow-2xl shadow-brand-500/20 group-hover:scale-105 transition-transform duration-300"
           />

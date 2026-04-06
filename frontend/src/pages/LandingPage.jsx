@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useAuthGate } from '../hooks/useAuthGate'
 import { Play, Code, Terminal, User } from 'lucide-react'
 import Landing3D from './Landing3D'
+import logo from '../assets/logo.png'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -293,7 +294,7 @@ export default function LandingPage() {
       >
         <Link to="/" className="flex items-center gap-3 group">
           <img 
-            src="/logo.png" 
+            src={logo} 
             alt="DevTUBE Logo" 
             className="w-9 h-9 object-contain rounded-lg shadow-2xl shadow-brand-500/20 group-hover:scale-105 transition-all duration-300"
           />

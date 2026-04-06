@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useAuthGate } from '../hooks/useAuthGate'
+import logo from '../assets/logo.png'
 
 // ─── Nav Links Config ─────────────────────────────────────────────────────────
 const NAV_LINKS = [
@@ -60,7 +61,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 group flex-shrink-0">
           <img
-            src="/logo.png"
+            src={logo}
             alt="DevTUBE Logo"
             className="w-9 h-9 object-contain rounded-xl shadow-glow-sm group-hover:scale-105 transition-all duration-300"
           />
