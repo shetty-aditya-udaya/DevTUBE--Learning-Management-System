@@ -156,4 +156,4 @@ DevTUBE--Learning-Management-System/
 
 ## 📄 License
 
-MIT © 2026 Aditya Shetty Udaya
+MIT © 2026 Shetty Aditya Udaya
