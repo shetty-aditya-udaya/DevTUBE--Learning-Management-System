@@ -6,14 +6,18 @@ from app.utils.responses import success_response, error_response
 courses_bp = Blueprint("courses", __name__)
 
 
-@courses_bp.route("", methods=["GET"])
+@courses_bp.route("", methods=["GET", "OPTIONS"])
 def get_all_courses():
+    if request.method == "OPTIONS":
+        return "", 200
     courses = course_service.get_all_courses()
     return success_response({"courses": courses, "count": len(courses)})
 
 
-@courses_bp.route("/<int:course_id>", methods=["GET"])
+@courses_bp.route("/<int:course_id>", methods=["GET", "OPTIONS"])
 def get_course(course_id):
+    if request.method == "OPTIONS":
+        return "", 200
     try:
         course = course_service.get_course_detail(course_id)
     except ValueError as e:
@@ -21,9 +25,15 @@ def get_course(course_id):
     return success_response({"course": course})
 
 
-@courses_bp.route("", methods=["POST"])
-@jwt_required()
+@courses_bp.route("", methods=["POST", "OPTIONS"])
+@jwt_required(optional=True)
 def create_course():
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    identity = get_jwt_identity()
+    if not identity:
+        return error_response("Authorization required", 401)
     claims = get_jwt()
     role = claims.get("role")
     if role not in ("instructor", "admin"):

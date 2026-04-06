@@ -5,8 +5,10 @@ from app.utils.responses import success_response, error_response
 ai_bp = Blueprint("ai", __name__)
 
 
-@ai_bp.route("/query", methods=["POST"])
+@ai_bp.route("/query", methods=["POST", "OPTIONS"])
 def query():
+    if request.method == "OPTIONS":
+        return "", 200
     """
     POST /api/ai/query
     Body: { "query": "user question" }
@@ -30,8 +32,10 @@ def query():
         return error_response("AI assistant encountered an error. Please try again.", 500)
 
 
-@ai_bp.route("/status", methods=["GET"])
+@ai_bp.route("/status", methods=["GET", "OPTIONS"])
 def status():
+    if request.method == "OPTIONS":
+        return "", 200
     """Health-check: is the AI index ready?"""
     ready = ai_service._faiss_index is not None
     return success_response({

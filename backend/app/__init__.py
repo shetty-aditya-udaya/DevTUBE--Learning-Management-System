@@ -20,9 +20,18 @@ def create_app(config_class=Config):
     migrate.init_app(flask_app, db)
     CORS(
         flask_app,
-        resources={r"/api/*": {"origins": "*"}},
+        resources={r"/*": {"origins": "*"}},
+        allow_headers=["Content-Type", "Authorization"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         supports_credentials=True
     )
+
+    @flask_app.after_request
+    def after_request(response):
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+        return response
 
     # Register blueprints
     from app.routes.auth import auth_bp

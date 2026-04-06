@@ -1,17 +1,23 @@
-from flask import Blueprint
+from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.lesson import Lesson
-from app.models.enrollment import Enrollment
-from app.models.section import Section
+# ... (rest of imports)
 from app.utils.responses import success_response, error_response
 
 lessons_bp = Blueprint("lessons", __name__)
 
 
-@lessons_bp.route("/<int:lesson_id>", methods=["GET"])
-@jwt_required()
+@lessons_bp.route("/<int:lesson_id>", methods=["GET", "OPTIONS"])
+@jwt_required(optional=True)
 def get_lesson(lesson_id):
-    user_id = int(get_jwt_identity())
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    identity = get_jwt_identity()
+    if not identity:
+        return error_response("Authorization required", 401)
+    
+    user_id = int(identity)
 
     lesson = Lesson.query.get(lesson_id)
     if not lesson:

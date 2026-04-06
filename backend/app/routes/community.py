@@ -10,9 +10,11 @@ from datetime import datetime
 community_bp = Blueprint("community", __name__)
 
 
-@community_bp.route("/posts", methods=["GET"])
+@community_bp.route("/posts", methods=["GET", "OPTIONS"])
 @jwt_required(optional=True)
 def get_posts():
+    if request.method == "OPTIONS":
+        return "", 200
     current_user_id = get_jwt_identity()
 
     # Filter params
@@ -37,10 +39,17 @@ def get_posts():
     }), 200
 
 
-@community_bp.route("/posts", methods=["POST"])
-@jwt_required()
+@community_bp.route("/posts", methods=["POST", "OPTIONS"])
+@jwt_required(optional=True)
 def create_post():
-    user_id = get_jwt_identity()
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    identity = get_jwt_identity()
+    if not identity:
+        return jsonify({"status": "error", "message": "Authorization required"}), 401
+    
+    user_id = identity
     data = request.get_json()
 
     content = data.get("content")
@@ -67,10 +76,17 @@ def create_post():
     }), 201
 
 
-@community_bp.route("/posts/<int:post_id>/like", methods=["POST"])
-@jwt_required()
+@community_bp.route("/posts/<int:post_id>/like", methods=["POST", "OPTIONS"])
+@jwt_required(optional=True)
 def toggle_like(post_id):
-    user_id = get_jwt_identity()
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    identity = get_jwt_identity()
+    if not identity:
+        return jsonify({"status": "error", "message": "Authorization required"}), 401
+    
+    user_id = identity
     
     like = Like.query.filter_by(post_id=post_id, user_id=user_id).first()
 
@@ -85,8 +101,10 @@ def toggle_like(post_id):
         return jsonify({"status": "success", "message": "Post liked", "has_liked": True}), 201
 
 
-@community_bp.route("/posts/<int:post_id>/comments", methods=["GET"])
+@community_bp.route("/posts/<int:post_id>/comments", methods=["GET", "OPTIONS"])
 def get_comments(post_id):
+    if request.method == "OPTIONS":
+        return "", 200
     comments = Comment.query.filter_by(post_id=post_id).order_by(Comment.created_at.asc()).all()
     return jsonify({
         "status": "success",
@@ -94,10 +112,17 @@ def get_comments(post_id):
     }), 200
 
 
-@community_bp.route("/posts/<int:post_id>/comments", methods=["POST"])
-@jwt_required()
+@community_bp.route("/posts/<int:post_id>/comments", methods=["POST", "OPTIONS"])
+@jwt_required(optional=True)
 def add_comment(post_id):
-    user_id = get_jwt_identity()
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    identity = get_jwt_identity()
+    if not identity:
+        return jsonify({"status": "error", "message": "Authorization required"}), 401
+    
+    user_id = identity
     data = request.get_json()
     content = data.get("content")
 

@@ -6,9 +6,15 @@ from app.utils.responses import success_response, error_response
 progress_bp = Blueprint("progress", __name__)
 
 
-@progress_bp.route("", methods=["POST"])
-@jwt_required()
+@progress_bp.route("", methods=["POST", "OPTIONS"])
+@jwt_required(optional=True)
 def mark_complete():
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    identity = get_jwt_identity()
+    if not identity:
+        return error_response("Authorization required", 401)
     data = request.get_json(silent=True) or {}
     lesson_id = data.get("lesson_id")
 
@@ -25,9 +31,15 @@ def mark_complete():
     return success_response({"progress": progress}, "Lesson marked as complete")
 
 
-@progress_bp.route("/update", methods=["POST"])
-@jwt_required()
+@progress_bp.route("/update", methods=["POST", "OPTIONS"])
+@jwt_required(optional=True)
 def update_progress():
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    identity = get_jwt_identity()
+    if not identity:
+        return error_response("Authorization required", 401)
     data = request.get_json(silent=True) or {}
     lesson_id = data.get("lessonId") or data.get("lesson_id")
     progress_seconds = data.get("progress_seconds", 0)
@@ -45,9 +57,15 @@ def update_progress():
     return success_response({"progress": progress}, "Progress saved")
 
 
-@progress_bp.route("/<int:course_id>", methods=["GET"])
-@jwt_required()
+@progress_bp.route("/<int:course_id>", methods=["GET", "OPTIONS"])
+@jwt_required(optional=True)
 def get_progress(course_id):
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    identity = get_jwt_identity()
+    if not identity:
+        return error_response("Authorization required", 401)
     user_id = int(get_jwt_identity())
 
     try:

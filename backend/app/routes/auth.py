@@ -10,8 +10,10 @@ logger = logging.getLogger(__name__)
 auth_bp = Blueprint("auth", __name__)
 
 
-@auth_bp.route("/signup", methods=["POST"])
+@auth_bp.route("/signup", methods=["POST", "OPTIONS"])
 def signup():
+    if request.method == "OPTIONS":
+        return "", 200
     data = request.get_json(silent=True) or {}
     logger.debug("Signup attempt: email=%s", data.get("email", ""))
 
@@ -38,8 +40,10 @@ def signup():
     return success_response({"user": user, **tokens}, "Account created", 201)
 
 
-@auth_bp.route("/login", methods=["POST"])
+@auth_bp.route("/login", methods=["POST", "OPTIONS"])
 def login():
+    if request.method == "OPTIONS":
+        return "", 200
     data = request.get_json(silent=True) or {}
     logger.debug("Login attempt: email=%s", data.get("email", ""))
     email = data.get("email", "").strip().lower()
@@ -61,19 +65,32 @@ def login():
     return success_response({"user": user, **tokens}, "Login successful")
 
 
-@auth_bp.route("/refresh", methods=["POST"])
-@jwt_required(refresh=True)
+@auth_bp.route("/refresh", methods=["POST", "OPTIONS"])
+@jwt_required(refresh=True, optional=True)
 def refresh():
+    if request.method == "OPTIONS":
+        return "", 200
+    
+    # Check if this is an actual request with a token
+    from flask_jwt_extended import get_jwt_identity
     identity = get_jwt_identity()
+    if not identity:
+        return error_response("Refresh token required", 401)
     claims = get_jwt()
     additional_claims = {"role": claims.get("role"), "name": claims.get("name")}
     access_token = create_access_token(identity=identity, additional_claims=additional_claims)
     return success_response({"access_token": access_token}, "Token refreshed")
 
 
-@auth_bp.route("/me", methods=["GET"])
-@jwt_required()
+@auth_bp.route("/me", methods=["GET", "OPTIONS"])
+@jwt_required(optional=True)
 def me():
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    identity = get_jwt_identity()
+    if not identity:
+        return error_response("Authorization required", 401)
     from app.models.user import User
     try:
         user_id = int(get_jwt_identity())

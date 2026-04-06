@@ -6,9 +6,15 @@ from app.utils.responses import success_response, error_response
 enrollments_bp = Blueprint("enrollments", __name__)
 
 
-@enrollments_bp.route("", methods=["POST"])
-@jwt_required()
+@enrollments_bp.route("", methods=["POST", "OPTIONS"])
+@jwt_required(optional=True)
 def enroll():
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    identity = get_jwt_identity()
+    if not identity:
+        return error_response("Authorization required", 401)
     data = request.get_json(silent=True) or {}
     course_id = data.get("course_id")
 
@@ -25,9 +31,15 @@ def enroll():
     return success_response({"enrollment": enrollment}, "Enrolled successfully", 201)
 
 
-@enrollments_bp.route("/me", methods=["GET"])
-@jwt_required()
+@enrollments_bp.route("/me", methods=["GET", "OPTIONS"])
+@jwt_required(optional=True)
 def my_enrollments():
+    if request.method == "OPTIONS":
+        return "", 200
+        
+    identity = get_jwt_identity()
+    if not identity:
+        return error_response("Authorization required", 401)
     user_id = int(get_jwt_identity())
     enrollments = enrollment_service.get_user_enrollments(user_id)
     return success_response({"enrollments": enrollments, "count": len(enrollments)})
