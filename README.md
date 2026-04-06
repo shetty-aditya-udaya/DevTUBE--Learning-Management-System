@@ -4,6 +4,14 @@ A full-stack, production-ready Learning Management System (LMS) built with a cin
 
 ---
 
+## 📸 Application Preview
+
+<p align="center">
+  <img src="./images/landing.png" width="100%" />
+</p>
+
+---
+
 ## ✨ Features
 
 - 🔐 **Authentication** — Secure JWT-based login & registration with refresh token rotation
